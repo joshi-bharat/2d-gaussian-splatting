@@ -161,6 +161,8 @@ def create_rotation_matrix_from_direction_vector_batch(direction_vectors):
 
 
 def colormap(img, cmap='jet'):
+    import matplotlib
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     W, H = img.shape[:2]
     dpi = 300
@@ -170,8 +172,8 @@ def colormap(img, cmap='jet'):
     fig.colorbar(im, ax=ax)
     fig.tight_layout()
     fig.canvas.draw()
-    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    buf = fig.canvas.buffer_rgba()
+    data = np.asarray(buf)[:, :, :3]
     img = torch.from_numpy(data / 255.).float().permute(2,0,1)
     plt.close()
     return img
